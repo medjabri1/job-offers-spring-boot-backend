@@ -15,6 +15,7 @@ import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/user")
+@CrossOrigin(origins = { "http://localhost:3000" }, allowedHeaders = "*", allowCredentials = "true")
 public class UserController {
 
     // PASSWORD ENCODER
@@ -36,7 +37,7 @@ public class UserController {
 
         HashMap<String, Object> response = new HashMap<>();
 
-        String email = auth.get("email");
+        String email = auth.get("email").toLowerCase(Locale.ROOT);
         String password = auth.get("password");
 
         if(userService.userExist(email)) {
@@ -48,8 +49,12 @@ public class UserController {
             if(password_match) {
                 // CORRECT PASSWORD
                 httpSession.setAttribute("user_id", user.getId());
+
                 response.put("status", 1);
                 response.put("action", "LOGGED IN");
+                response.put("role", user.getRole());
+                response.put("user_id", user.getId());
+                response.put("http_session", httpSession);
                 response.put("token", null);
 
             } else {
@@ -78,9 +83,10 @@ public class UserController {
     public HashMap<String, Object> logout(HttpSession httpSession) {
 
         HashMap<String, Object> response = new HashMap<>();
-
         httpSession.removeAttribute("user_id");
+        httpSession.invalidate();
         response.put("status", 1);
+        response.put("action", "LOGGED OUT SUCCESS");
 
         return response;
     }
@@ -93,8 +99,13 @@ public class UserController {
         HashMap<String, Object> response = new HashMap<>();
 
         Object session_user_id = httpSession.getAttribute("user_id");
+        int user_id = session_user_id != null ? Integer.parseInt(session_user_id.toString()) : 0;
+        String user_role = userService.userExist(user_id) ? userService.getUser(user_id).getRole() : "";
 
-        response.put("status", session_user_id != null ? "LOGGED IN" : "LOGGED OUT");
+        response.put("status", session_user_id != null ? 1 : 0ù);
+        response.put("message", session_user_id != null ? "LOGGED IN" : "LOGGED OUT");
+        response.put("role", user_role);
+        response.put("http_session", httpSession);
         response.put("session_user_id", String.valueOf(session_user_id));
 
         return response;
@@ -110,8 +121,10 @@ public class UserController {
         if(!userService.userExist(user.getEmail())) {
             // EMAIL AVAILABLE
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setEmail(user.getEmail().toLowerCase(Locale.ROOT));
             user.setRole(Utility.USER_ROLES.get(user.getRole().toUpperCase(Locale.ROOT)));
             response.put("status", 1);
+            response.put("action", "SIGNED UP SUCCESSFULLY");
             response.put("user", userService.saveUser(user));
         } else {
             // EMAIL ALREADY TAKEN
