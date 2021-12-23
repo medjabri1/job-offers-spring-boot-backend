@@ -30,6 +30,15 @@ public class User {
     @Column(nullable = false, unique = true, length = 200)
     private String email;
 
+    @Column(nullable = true, length = 20)
+    private String phone;
+
+    @Column(nullable = true, length = 200)
+    private String linkedInUrl;
+
+    @Column(nullable = true, length = 500)
+    private String pictureUrl;
+
     @Column(nullable = false, length = 200)
     private String password;
 
@@ -115,5 +124,29 @@ public class User {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getLinkedInUrl() {
+        return linkedInUrl;
+    }
+
+    public void setLinkedInUrl(String linkedInUrl) {
+        this.linkedInUrl = linkedInUrl;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
 }

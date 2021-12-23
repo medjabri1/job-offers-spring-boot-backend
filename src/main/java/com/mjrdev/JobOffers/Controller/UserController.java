@@ -8,10 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -102,7 +105,7 @@ public class UserController {
         int user_id = session_user_id != null ? Integer.parseInt(session_user_id.toString()) : 0;
         String user_role = userService.userExist(user_id) ? userService.getUser(user_id).getRole() : "";
 
-        response.put("status", session_user_id != null ? 1 : 0ù);
+        response.put("status", session_user_id != null ? 1 : "LOGGED OUT");
         response.put("message", session_user_id != null ? "LOGGED IN" : "LOGGED OUT");
         response.put("role", user_role);
         response.put("http_session", httpSession);
@@ -187,10 +190,10 @@ public class UserController {
         return response;
     }
 
-    // UPDATE USER
+    // UPDATE USER Data
 
-    @PutMapping("/update")
-    public HashMap<String, Object> updateUser(@RequestBody User new_user) {
+    @PutMapping("/update-data")
+    public HashMap<String, Object> updateUserData(@RequestBody User new_user) {
 
         HashMap<String, Object> response = new HashMap<>();
 
@@ -198,27 +201,101 @@ public class UserController {
             // USER EXISTS
             User current_user = userService.getUser(new_user.getId());
 
-            // CHANGEABLE COLUMNS : FIRST NAME, LAST NAME, PASSWORD, BIRTH DATE
-            current_user.setFirstName(new_user.getFirstName());
-            current_user.setLastName(new_user.getLastName());
-            current_user.setPassword(passwordEncoder.encode(new_user.getPassword()));
-            current_user.setBirthDate(new_user.getBirthDate());
+            if(userService.userExist(new_user.getEmail())) {
+                // EMAIL EXISTS
+                User user_with_email = userService.getUser(new_user.getEmail());
+                if(current_user.getId() == user_with_email.getId()) {
+                    // EMAIL WITH SAME USER
+                    current_user.setFirstName(new_user.getFirstName());
+                    current_user.setLastName(new_user.getLastName());
+                    current_user.setBirthDate(new_user.getBirthDate());
+                    current_user.setPhone(new_user.getPhone());
+                    current_user.setLinkedInUrl(new_user.getLinkedInUrl());
+                    current_user.setPictureUrl(new_user.getPictureUrl());
 
-            if(userService.updateUser(current_user)) {
-                // USER UPDATED
-                response.put("status", 1);
-                response.put("user", current_user);
+                    if(userService.updateUser(current_user)) {
+                        // USER UPDATED
+                        response.put("status", 1);
+                        response.put("user", current_user);
+                    } else {
+                        // USER NOTE UPDATED
+                        response.put("status", 0);
+                        response.put("error", "ERROR IN THE USER UPDATE OPERATION");
+                    }
+
+                } else {
+                    // EMAIL TAKEN BY ANOTHER USER
+                    response.put("status", 0);
+                    response.put("error", "EMAIL ALREADY TAKEN");
+                }
             } else {
-                // USER NOTE UPDATED
-                response.put("status", 0);
-                response.put("user", new User());
-                response.put("error", "ERROR IN THE USER UPDATE OPERATION");
+                // EMAIL AVAILABLE
+                current_user.setFirstName(new_user.getFirstName());
+                current_user.setLastName(new_user.getLastName());
+                current_user.setBirthDate(new_user.getBirthDate());
+                current_user.setEmail(new_user.getEmail());
+                current_user.setPhone(new_user.getPhone());
+                current_user.setLinkedInUrl(new_user.getLinkedInUrl());
+                current_user.setPictureUrl(new_user.getPictureUrl());
+
+                if(userService.updateUser(current_user)) {
+                    // USER UPDATED
+                    response.put("status", 1);
+                    response.put("user", current_user);
+                } else {
+                    // USER NOTE UPDATED
+                    response.put("status", 0);
+                    response.put("error", "ERROR IN THE USER UPDATE OPERATION");
+                }
             }
 
         } else {
             // USER DOESN'T EXIST
             response.put("status", 0);
-            response.put("user", new User());
+            response.put("error", "USER DOESN'T EXIST");
+            response.put("status_code", 404);
+        }
+
+        return response;
+    }
+
+    // UPDATE USER PASSWORD
+
+    @PutMapping("/update-password")
+    public HashMap<String, Object> updateUserPassword(@RequestBody Map<String, Object> payload) {
+
+        HashMap<String, Object> response = new HashMap<>();
+
+        int id = Integer.parseInt(String.valueOf(payload.get("id")));
+        String currentPassword = String.valueOf(payload.get("currentPassword"));
+        String newPassword = String.valueOf(payload.get("newPassword"));
+
+        if(userService.userExist(id)) {
+            // USER EXISTS
+            User current_user = userService.getUser(id);
+
+            if(passwordEncoder.matches(currentPassword, current_user.getPassword())) {
+                // Current Password matches
+                current_user.setPassword(passwordEncoder.encode(newPassword));
+                if(userService.updateUser(current_user)) {
+                    // PASSWORD UPDATED
+                    response.put("status", 1);
+                    response.put("action", "PASSWORD UPDATED");
+                } else {
+                    // PASSWORD NOT UPDATED
+                    response.put("status", 0);
+                    response.put("error", "ERROR IN THE USER UPDATE OPERATION");
+                }
+
+            } else {
+                // Incorrect current password
+                response.put("status", 0);
+                response.put("error", "INCORRECT CURRENT PASSWORD");
+            }
+
+        } else {
+            // USER DOESN'T EXIST
+            response.put("status", 0);
             response.put("error", "USER DOESN'T EXIST");
             response.put("status_code", 404);
         }
