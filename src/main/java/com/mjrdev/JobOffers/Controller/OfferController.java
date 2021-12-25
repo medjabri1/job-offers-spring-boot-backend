@@ -168,6 +168,7 @@ public class OfferController {
 
                 category_result.put(String.valueOf(category_id), offerList);
 
+
                 response.put("status", 1);
                 response.put("result", category_result);
 
