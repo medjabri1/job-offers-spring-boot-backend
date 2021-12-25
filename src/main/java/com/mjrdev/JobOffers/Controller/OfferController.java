@@ -3,6 +3,7 @@ package com.mjrdev.JobOffers.Controller;
 import com.mjrdev.JobOffers.Model.Category;
 import com.mjrdev.JobOffers.Model.Offer;
 import com.mjrdev.JobOffers.Model.User;
+import com.mjrdev.JobOffers.Service.CategoryService.CategoryService;
 import com.mjrdev.JobOffers.Service.OfferService.OfferService;
 import com.mjrdev.JobOffers.Service.UserService.UserService;
 import com.mjrdev.JobOffers.Utility.Utility;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/offer")
+@CrossOrigin(origins = { "http://localhost:3000" }, allowedHeaders = "*", allowCredentials = "true")
 public class OfferController {
 
     @Autowired
@@ -23,6 +25,9 @@ public class OfferController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     // GET ALL OFFERS
 
@@ -112,7 +117,7 @@ public class OfferController {
     
     // DELETE OFFER
 
-    @DeleteMapping("/update")
+    @DeleteMapping("/delete")
     public HashMap<String, Object> deleteOffer(@RequestParam(name="id") int id) {
 
         HashMap<String, Object> response = new HashMap<>();
@@ -132,6 +137,69 @@ public class OfferController {
             // OFFER DOESN'T EXIST
             response.put("status", 0);
             response.put("error", "OFFER DOESN'T EXIST");
+        }
+
+        return response;
+    }
+
+    // GET ALL OFFERS BY CATEGORY
+
+    @GetMapping("/all-offers-category")
+    public HashMap<String, Object> getOffersByCategory(
+            @RequestParam(name="category_id", required = false) Integer category_id,
+            @RequestParam(name="limit", required = false) Integer limit
+    ) {
+
+        HashMap<String, Object> response = new HashMap<>();
+
+        if(category_id != null) {
+            // RETURN OFFER OF ONLY THIS CATEGORY
+            if(categoryService.categoryExist(category_id)) {
+                // CATEGORY EXISTS
+
+                HashMap<String, Object> category_result = new HashMap<>();
+                List<Offer> offerList;
+
+                if(limit != null) {
+                    offerList = offerService.getOffersByCategory(category_id, limit);
+                } else {
+                    offerList = offerService.getOffersByCategory(category_id);
+                }
+
+                category_result.put(String.valueOf(category_id), offerList);
+
+                response.put("status", 1);
+                response.put("result", category_result);
+
+            } else {
+                // CATEGORY DOESN'T EXIST
+                response.put("status", 0);
+                response.put("error", "CATEGORY DOESN'T EXIST");
+            }
+        } else {
+            // RETURN OFFERS OF ALL CATEGORIES
+            HashMap<String, Object> category_result = new HashMap<>();
+
+            List<Category> categoriesList = categoryService.getCategories();
+
+            for(int i = 0; i < categoriesList.size(); i++) {
+
+                int current_id = categoriesList.get(i).getId();
+
+                List<Offer> offerList;
+
+                if(limit != null) {
+                    offerList = offerService.getOffersByCategory(current_id, limit);
+                } else {
+                    offerList = offerService.getOffersByCategory(current_id);
+                }
+
+                category_result.put(String.valueOf(current_id), offerList);
+            }
+
+            response.put("status", 1);
+            response.put("result", category_result);
+
         }
 
         return response;

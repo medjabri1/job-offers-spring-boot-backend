@@ -17,6 +17,10 @@ public interface OfferService {
     public List<Offer> getRecruiterOffers(int recruiter_id);
     public List<Offer> getRecruiterOffers(int recruited_id, int closed);
 
+    // GET OFFERS BY CATEGORY
+    public List<Offer> getOffersByCategory(int category_id);
+    public List<Offer> getOffersByCategory(int category_id, int limit);
+
     // OFFER EXIST
     public boolean offerExist(int id);
 

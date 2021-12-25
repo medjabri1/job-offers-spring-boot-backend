@@ -22,4 +22,17 @@ public interface OfferRepository extends JpaRepository<Offer, Integer> {
             nativeQuery = true
     )
     public List<Offer> getRecruiterOffers(int recruiter_id, int closed);
+
+    @Query(
+            value = "SELECT * FROM ( SELECT * FROM offers where category_id = ?1 ORDER BY created_at DESC ) WHERE ROWNUM <= ?2",
+            nativeQuery = true
+    )
+    public List<Offer> getOffersByCategory(int category_id, int limit);
+
+    @Query(
+            value = "SELECT * FROM offers WHERE category_id = ?1 ORDER BY created_at DESC",
+            nativeQuery = true
+    )
+    public List<Offer> getOffersByCategory(int category_id);
+
 }

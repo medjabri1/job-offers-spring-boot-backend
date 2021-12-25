@@ -39,6 +39,16 @@ public class OfferServiceImp implements OfferService {
     }
 
     @Override
+    public List<Offer> getOffersByCategory(int category_id, int limit) {
+        return offerRepository.getOffersByCategory(category_id, limit);
+    }
+
+    @Override
+    public List<Offer> getOffersByCategory(int category_id) {
+        return offerRepository.getOffersByCategory(category_id);
+    }
+
+    @Override
     public boolean offerExist(int id) {
         return offerRepository.existsById(id);
     }
