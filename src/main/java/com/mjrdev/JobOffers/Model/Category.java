@@ -1,10 +1,12 @@
 package com.mjrdev.JobOffers.Model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="categories")
@@ -18,6 +20,10 @@ public class Category {
 
     @Column(nullable = false, length = 200)
     private String name;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name="category_id", referencedColumnName = "id")
+    private List<Offer> offerList;
 
     @CreationTimestamp
     @JsonFormat(pattern="yyyy-MM-dd 'T'HH:mm:ss")
