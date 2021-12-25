@@ -13,6 +13,10 @@ public interface OfferService {
     public Offer getOffer(int id);
     public List<Offer> getOffers();
 
+    // GET OFFERS OF RECRUITER
+    public List<Offer> getRecruiterOffers(int recruiter_id);
+    public List<Offer> getRecruiterOffers(int recruited_id, int closed);
+
     // OFFER EXIST
     public boolean offerExist(int id);
 

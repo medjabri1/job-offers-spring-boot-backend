@@ -31,6 +31,21 @@ public class Offer {
     @JoinColumn(name="recruiter_id", referencedColumnName = "id")
     private User recruiter;
 
+    @Column(nullable = false, length = 200)
+    private String companyName;
+
+    @Column(nullable = false, length = 50)
+    private String country;
+
+    @Column(nullable = false, length = 50)
+    private String city;
+
+    @Column(nullable = false, length = 50)
+    private String type;
+
+    @Column(nullable = false, name="closed", length = 1)
+    private int closed = 0;
+
     @CreationTimestamp
     @JsonFormat(pattern="yyyy-MM-dd 'T'HH:mm:ss")
     @Temporal(TemporalType.TIMESTAMP)
@@ -76,6 +91,46 @@ public class Offer {
 
     public void setRecruiter(User recruiter) {
         this.recruiter = recruiter;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getClosed() {
+        return closed;
+    }
+
+    public void setClosed(int closed) {
+        this.closed = closed;
     }
 
     public Date getCreatedAt() {

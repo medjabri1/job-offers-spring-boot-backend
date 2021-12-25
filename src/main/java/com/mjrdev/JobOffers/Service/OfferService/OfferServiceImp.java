@@ -29,6 +29,16 @@ public class OfferServiceImp implements OfferService {
     }
 
     @Override
+    public List<Offer> getRecruiterOffers(int recruiter_id) {
+        return offerRepository.getRecruiterOffers(recruiter_id);
+    }
+
+    @Override
+    public List<Offer> getRecruiterOffers(int recruited_id, int closed) {
+        return offerRepository.getRecruiterOffers(recruited_id, closed);
+    }
+
+    @Override
     public boolean offerExist(int id) {
         return offerRepository.existsById(id);
     }
