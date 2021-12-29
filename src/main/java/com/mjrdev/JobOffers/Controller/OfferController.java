@@ -46,7 +46,7 @@ public class OfferController {
         if(offerService.offerExist(id)) {
             // OFFER EXISTS
             response.put("status", 1);
-            response.put("OFFER", offerService.getOffer(id));
+            response.put("offer", offerService.getOffer(id));
         } else {
             // OFFER DOESN'T EXIST
             response.put("status", 0);
