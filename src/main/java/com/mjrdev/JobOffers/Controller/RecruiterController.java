@@ -1,13 +1,16 @@
 package com.mjrdev.JobOffers.Controller;
 
+import com.mjrdev.JobOffers.Model.Offer;
 import com.mjrdev.JobOffers.Model.User;
 import com.mjrdev.JobOffers.Service.OfferService.OfferService;
+import com.mjrdev.JobOffers.Service.PostulationService.PostulationService;
 import com.mjrdev.JobOffers.Service.UserService.UserService;
 import com.mjrdev.JobOffers.Utility.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 @RestController
@@ -20,6 +23,9 @@ public class RecruiterController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PostulationService postulationService;
 
     // GET ALL RECRUITER OFFERS
 
@@ -63,10 +69,18 @@ public class RecruiterController {
 
                 HashMap<String, Object> overview = new HashMap<>();
 
-                overview.put("total_offers", offerService.getRecruiterOffers(recruiter_id).size());
+                int submissions_count = 0;
+                List<Offer> recruiterOffers = offerService.getRecruiterOffers(recruiter_id);
+
+                for(int i = 0; i < recruiterOffers.size(); i++) {
+                    Offer currentOffer = recruiterOffers.get(i);
+                    submissions_count += postulationService.getOfferPostulations(currentOffer.getId()).size();
+                }
+
+                overview.put("total_offers", recruiterOffers.size());
                 overview.put("total_open", offerService.getRecruiterOffers(recruiter_id, 0).size());
                 overview.put("total_closed", offerService.getRecruiterOffers(recruiter_id, 1).size());
-                overview.put("total_submissions", 99999);
+                overview.put("total_submissions", submissions_count);
                 overview.put("total_views", 99999);
                 overview.put("total_favorites", 99999);
 
