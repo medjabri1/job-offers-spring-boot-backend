@@ -30,9 +30,11 @@ public class RecruiterController {
     // GET ALL RECRUITER OFFERS
 
     @GetMapping("/all-offers")
-    public HashMap<String, Object> getAllOffers(@RequestParam(name="recruiter_id") int recruiter_id) {
+    public HashMap<String, Object> getAllOffers(@RequestParam(name="recruiter_id") int recruiter_id, @RequestParam(name="closed", required = false) Integer closed_obj) {
 
         HashMap<String, Object> response = new HashMap<>();
+
+        int closed = closed_obj != null ? closed_obj.intValue() : -1;
 
         if(userService.userExist(recruiter_id)) {
             // USER EXISTS
@@ -40,7 +42,24 @@ public class RecruiterController {
             if(recruiter.getRole().toLowerCase(Locale.ROOT).equals(Utility.USER_ROLES.get("R").toLowerCase(Locale.ROOT))) {
                 // USER IS A RECRUITER
                 response.put("status", 1);
-                response.put("offers", offerService.getRecruiterOffers(recruiter_id));
+
+                if(closed == 0) {
+                    // GET RECRUITER OPEN OFFERS
+                    response.put("offers", offerService.getRecruiterOffers(recruiter_id, closed));
+                    response.put("action", "OPEN OFFERS");
+
+                } else if(closed == 1) {
+                    // GET RECRUITER CLOSED OFFERS
+                    response.put("offers", offerService.getRecruiterOffers(recruiter_id, closed));
+                    response.put("action", "CLOSED OFFERS");
+
+                } else {
+                    // GET ALL OFFERS
+                    response.put("offers", offerService.getRecruiterOffers(recruiter_id));
+                    response.put("action", "ALL OFFERS");
+
+                }
+
             } else {
                 // USER IS NOT A RECRUITER
                 response.put("status", 0);
@@ -100,4 +119,6 @@ public class RecruiterController {
 
         return response;
     }
+
+    // GET RECRUITER OPEN OFFERS
 }

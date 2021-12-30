@@ -16,11 +16,11 @@ public class Postulation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="applier_id", referencedColumnName = "id")
     private User applier;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name="offer_id", referencedColumnName = "id")
     private Offer offer;
 

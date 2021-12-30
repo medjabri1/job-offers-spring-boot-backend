@@ -96,6 +96,9 @@ public class OfferController {
         HashMap<String, Object> response = new HashMap<>();
 
         if(offerService.offerExist(offer.getId())) {
+
+            offer.setCreatedAt(offerService.getOffer(offer.getId()).getCreatedAt());
+
             // OFFER EXISTS
             if(offerService.updateOffer(offer)) {
                 // OFFER UPDATED

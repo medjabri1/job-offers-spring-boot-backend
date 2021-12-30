@@ -21,7 +21,7 @@ public class Category {
     @Column(nullable = false, length = 200)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name="category_id", referencedColumnName = "id")
     private List<Offer> offerList;
 
