@@ -10,10 +10,7 @@ import com.mjrdev.JobOffers.Utility.Utility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/offer")
@@ -205,6 +202,47 @@ public class OfferController {
             response.put("result", category_result);
 
         }
+
+        return response;
+    }
+
+    // SEARCH FOR OFFERS
+
+    @GetMapping("/search")
+    public HashMap<String, Object> searchOffers(@RequestBody Map<String, Object> payload) {
+
+        HashMap<String, Object> response = new HashMap<>();
+
+        String searchQuery = payload.get("query").toString().toLowerCase(Locale.ROOT);
+        int category_id = !payload.get("category").toString().equals("") ? Integer.parseInt(payload.get("category").toString()) : 0;
+        String type = payload.get("type").toString().toLowerCase(Locale.ROOT);
+
+        List<Offer> offerList = offerService.getOffers();
+        List<Offer> responseOffer = new ArrayList<>();
+
+        for(int i = 0; i < offerList.size(); i++) {
+
+            Offer current_offer = offerList.get(i);
+
+            if(category_id == current_offer.getCategory().getId() || category_id == 0) {
+                // SAME CATEGORY
+                if(current_offer.getType().toLowerCase(Locale.ROOT).equals(type) || type.equals("all")) {
+                    // SAME TYPE
+                    String title = current_offer.getTitle().toLowerCase(Locale.ROOT);
+                    String description = current_offer.getDescription().toLowerCase(Locale.ROOT);
+
+                    if(title.contains(searchQuery) || description.contains(searchQuery) || searchQuery.equals("")) {
+                        // SEARCH QUERY MATCH
+                        responseOffer.add(current_offer);
+                    }
+                }
+            }
+        }
+
+        response.put("status", 1);
+        response.put("offers", responseOffer);
+        response.put("total_offers", responseOffer.size());
+        response.put("total_offers_initial", offerList.size());
 
         return response;
     }

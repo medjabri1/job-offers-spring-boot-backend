@@ -70,6 +70,7 @@ public class PostulationController {
 
         response.put("status", 1);
         response.put("postulations", postulationService.getOfferPostulations(offer_id));
+        response.put("total_submissions", postulationService.getOfferPostulations(offer_id).size());
 
         return response;
     }
