@@ -209,13 +209,13 @@ public class OfferController {
     // SEARCH FOR OFFERS
 
     @GetMapping("/search")
-    public HashMap<String, Object> searchOffers(@RequestBody Map<String, Object> payload) {
+    public HashMap<String, Object> searchOffers(@RequestParam(name="query") String query, @RequestParam(name="category") String category, @RequestParam(name="type") String type) {
 
         HashMap<String, Object> response = new HashMap<>();
 
-        String searchQuery = payload.get("query").toString().toLowerCase(Locale.ROOT);
-        int category_id = !payload.get("category").toString().equals("") ? Integer.parseInt(payload.get("category").toString()) : 0;
-        String type = payload.get("type").toString().toLowerCase(Locale.ROOT);
+        String searchQuery = query.toString().toLowerCase(Locale.ROOT);
+        int category_id = !category.toString().equals("") ? Integer.parseInt(category.toString()) : 0;
+        type = type.toLowerCase(Locale.ROOT);
 
         List<Offer> offerList = offerService.getOffers();
         List<Offer> responseOffer = new ArrayList<>();
